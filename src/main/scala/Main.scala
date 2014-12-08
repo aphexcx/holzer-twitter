@@ -1,6 +1,6 @@
 //TRUISMS (1978-1983)
 //JENNY HOLZER
-// twitter bot tweeting jenney holzer's truisms
+// twitter bot using a scheduled actor to tweet out jenny holzer's truisms
 // aphex.cx
 // based on repatch-twitter
 // http://eed3si9n.com/howto-write-a-dispatch-plugin
@@ -23,7 +23,6 @@ object Main extends App {
   val prop = new File("auth.properties")
   val client: OAuthClient = PropertiesClient(prop)
   val http = new Http
-  //val x2 = http(client(Status.update("wrapping Twitter API for an async http lib") in_reply_to_status_id tweet.id ) OK as.repatch.twitter.response.Tweet)
   val system = ActorSystem("MySystem")
 
   def quotes: Seq[String] = Source.fromFile(R("truisms.txt")).getLines().toSeq map (_.trim)
@@ -64,7 +63,7 @@ object Main extends App {
     }
   }
 
-  // if i want to tweet at specific times of day
+  // future: if i want to tweet at specific times of day
   // https://github.com/theatrus/akka-quartz
   //  val quartzActor = system.actorOf(Props[QuartzActor])
 
