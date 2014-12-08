@@ -16,5 +16,9 @@ libraryDependencies += "com.twitter" %% "chill" % "0.5.1"
 
 libraryDependencies += "org.scala-lang" %% "scala-pickling" % "0.9.0"
 
-libraryDependencies += "org.scalatest" % "scalatest" % "2.2.1" % "test"
+libraryDependencies += "org.scalatest" % "scalatest_2.11" % "2.2.1" % "test"
+
+resolvers += "theatr.us" at "http://repo.theatr.us"
+
+libraryDependencies += "us.theatr" %% "akka-quartz" % "0.3.0"
 

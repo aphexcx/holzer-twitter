@@ -5,7 +5,7 @@
 // based on repatch-twitter
 // http://eed3si9n.com/howto-write-a-dispatch-plugin
 
-import java.io.{File, FileOutputStream}
+import java.io.File
 import java.nio.file.{Files, Paths}
 
 import akka.actor.ActorSystem
@@ -45,10 +45,7 @@ object Main extends App {
     Random.shuffle(lines filterNot used) head
 
   def dump(xs: Set[String], filename: String = "used.bin"): Unit = {
-    val p: Array[Byte] = xs.pickle.value
-    val fos = new FileOutputStream(filename)
-    fos.write(p)
-    fos.close()
+    Files.write(Paths.get(filename), xs.pickle.value)
   }
 
   def use(s: String, used: Set[String]): Set[String] =
@@ -67,7 +64,11 @@ object Main extends App {
     }
   }
 
-  system.scheduler.schedule(0 seconds, 10 seconds) {
+  // if i want to tweet at specific times of day
+  // https://github.com/theatrus/akka-quartz
+  //  val quartzActor = system.actorOf(Props[QuartzActor])
+
+  system.scheduler.schedule(0 seconds, 10.5 hours) {
     tweetAQuote()
   }
 }
