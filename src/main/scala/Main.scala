@@ -15,6 +15,7 @@ import twitter.response.Tweet
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
 import scala.io.Source
+import scala.language.postfixOps
 import scala.pickling._
 import scala.pickling.binary._
 import scala.util.{Failure, Random, Success}
@@ -40,8 +41,8 @@ object Main extends App {
       BinaryPickle(ab).unpickle[Set[String]]
   }
 
-  def quote(lines: Seq[String], used: Set[String]): String =
-    Random.shuffle(lines filterNot used) head
+  def quote(lines: Seq[String], used: Set[String]): Option[String] =
+    Random.shuffle(lines filterNot used).headOption
 
   def dump(xs: Set[String], filename: String = "used.bin"): Unit = {
     Files.write(Paths.get(filename), xs.pickle.value)
@@ -50,18 +51,27 @@ object Main extends App {
   def use(s: String, used: Set[String]): Set[String] =
     used + s.trim
 
-  def tweetAQuote(): Unit = {
-    // tweet out a truism.
-    // if successful, mark the quote as used and print the tweet.
-    // if failed, print the exception.
-    val used: Set[String] = load("used.bin")
-    val q: String = quote(quotes, used)
+  def postWithRollover(quotes: Seq[String], used: Set[String],
+                       effect: (String, Set[String]) => Unit): Unit =
+    quote(quotes, used).map(q => effect(q, used)) orElse {
+      val fresh = Set.empty[String]
+      quote(quotes, fresh).map(q => effect(q, fresh))
+    }
+
+  def postTweet(q: String, used: Set[String]): Unit = {
     val f: Future[Tweet] = http(client(Status.update(q)) OK as.repatch.twitter.response.Tweet)
     f onComplete {
       case Success(t) => dump(use(q, used)); println(t)
       case Failure(e) => println("Error posting tweet: " + e.getMessage)
     }
   }
+
+  def tweetAQuote(): Unit =
+  // tweet out a truism.
+  // if successful, mark the quote as used and print the tweet.
+  // if failed, print the exception.
+    postWithRollover(quotes, load("used.bin"), postTweet)
+
 
   // future: if i want to tweet at specific times of day
   // https://github.com/theatrus/akka-quartz

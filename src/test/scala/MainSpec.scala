@@ -29,4 +29,30 @@ class MainSpec extends FunSpec with Matchers {
     }
   }
 
+  describe("tweeting quotes") {
+    it("rolls over correctly when all the quotes are used up") {
+      val quotes: Seq[String] = Seq("a", "b", "c")
+      val used: Set[String] = Set("a", "b", "c")
+
+      class effectSpy {
+        var timesCalled: Int = 0
+        var setReceieved: Set[String] = Set("~didn't see anything~")
+
+        def effectSpy(q: String, used: Set[String]): Unit = {
+          timesCalled += 1
+          setReceieved = used
+        }
+      }
+
+      val spy = new effectSpy
+
+      postWithRollover(quotes, used, spy.effectSpy)
+
+      spy.setReceieved shouldBe Set.empty[String]
+      spy.timesCalled shouldBe 1
+    }
+  }
+
+
+
 }
