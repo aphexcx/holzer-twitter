@@ -1,10 +1,9 @@
 import java.io.File
 
-import Main._
 import org.scalatest.{FunSpec, Matchers}
 
 
-class MainSpec extends FunSpec with Matchers {
+class RecorderSpec extends FunSpec with Matchers {
   describe("Recorder") {
     val path = File.createTempFile("mainspec", "dump").getPath
     val recorder = Recorder(path)
@@ -40,18 +39,17 @@ class MainSpec extends FunSpec with Matchers {
     val quotes: Seq[String] = Seq("a", "b", "c")
 
     it("returns an unused quote when there's one available") {
-      getAnUnusedQuote(quotes, recorder) should (be("a") or be("b") or be("c"))
+      recorder.getAnUnusedQuote(quotes) should (be("a") or be("b") or be("c"))
     }
 
     it("rolls over correctly when all the quotes are used up") {
       recorder.markUsed("a")
-      getAnUnusedQuote(quotes, recorder) should (be("b") or be("c"))
+      recorder.getAnUnusedQuote(quotes) should (be("b") or be("c"))
       recorder.markUsed("b")
-      getAnUnusedQuote(quotes, recorder) should be("c")
+      recorder.getAnUnusedQuote(quotes) should be("c")
       recorder.markUsed("c")
-      getAnUnusedQuote(quotes, recorder) should (be("a") or be("b") or be("c"))
+      recorder.getAnUnusedQuote(quotes) should (be("a") or be("b") or be("c"))
 
     }
   }
-
 }
