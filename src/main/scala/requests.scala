@@ -146,6 +146,10 @@ object Status {
     */
   def update(status: String): Update = Update(Map("status" -> status))
 
+  def reply(status: String, inReplyToScreenName: String, inReplyToTweetID: BigInt): Update =
+    Update(Map("status" -> "@%s %s".format(inReplyToScreenName, status),
+      "in_reply_to_status_id" -> inReplyToTweetID.toString()))
+
   case class Update(params: Map[String, String]) extends Method
   with Param[Update] with TrimUserParam[Update] {
     def complete = _ / "statuses" / "update.json" << params

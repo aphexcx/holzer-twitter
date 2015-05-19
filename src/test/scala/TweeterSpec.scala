@@ -10,4 +10,21 @@ class TweeterSpec extends FunSpec with Matchers with ScalaFutures {
       }
     }
   }
+
+  describe("responding to tweets") {
+    it("returns a future with the postedTweet") {
+      val tw = Tweeter()
+      whenReady(tw.getUser("HOLZERTRON"), timeout(Span(5, Seconds))) { u =>
+        whenReady(tw.postReply("test", u.screen_name, u.status.get.id), timeout(Span(5, Seconds))) { t =>
+          t.text shouldBe "@HOLZERTRON test"
+          t.in_reply_to_user_id shouldBe Some(u.id)
+
+          // clean up
+          whenReady(tw.destroyStatus(t.id), timeout(Span(5, Seconds))) { destroyed =>
+            destroyed.text shouldBe "@HOLZERTRON test"
+          }
+        }
+      }
+    }
+  }
 }
