@@ -6,6 +6,7 @@ import twitter.response
 import twitter.response.Tweet
 
 import scala.util.{Failure, Success}
+import scalaz.syntax.id._
 
 class Tweeter {
   import scala.concurrent.ExecutionContext.Implicits.global
@@ -49,7 +50,7 @@ class Tweeter {
   }
 
   def searchForJenny: Future[response.Search] =
-    http(client(Search("jenny holzer")) OK as.repatch.twitter.response.Search)
+    http(client(Search("jenny holzer")) OK as.repatch.twitter.response.Search) <| { _ => println("Searching!") }
 
   def destroyStatus(id: BigInt): Future[Tweet] =
     http(client(Status.DestroyStatus(id)) OK as.repatch.twitter.response.Status)
