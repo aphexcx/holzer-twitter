@@ -21,7 +21,6 @@ object Main extends App {
 
   def R(s: String): String = getClass.getResource(s).getPath
 
-
   def tweetAQuote(): Unit = {
     // tweet out a truism.
     // if successful, mark the quote as used and print the tweet.
@@ -32,7 +31,7 @@ object Main extends App {
 
   def searchAndRespond(): Unit =
     tweeter.searchForJenny onComplete {
-      case Success(s) => tweeter.respondToTweets(s.statuses)
+      case Success(tweets) => tweeter.respondToTweets(tweets)
       case Failure(e) => println("Error when searching: " + e.getMessage)
     }
 

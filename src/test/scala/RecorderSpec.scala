@@ -1,9 +1,10 @@
+import org.scalatest.funspec.AnyFunSpec
+import org.scalatest.matchers.should.Matchers
+
 import java.io.File
 
-import org.scalatest.{FunSpec, Matchers}
 
-
-class RecorderSpec extends FunSpec with Matchers {
+class RecorderSpec extends AnyFunSpec with Matchers {
   describe("Recorder") {
     val path = File.createTempFile("mainspec", "dump").getPath
     val recorder = Recorder(path)

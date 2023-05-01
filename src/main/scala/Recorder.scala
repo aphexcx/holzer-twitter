@@ -1,7 +1,7 @@
-import java.nio.file.{Files, Paths}
+import io.circe.parser._
+import io.circe.syntax._
 
-import scala.pickling._
-import scala.pickling.binary._
+import java.nio.file.{Files, Paths}
 import scala.util.Random
 
 case class Recorder(filename: String) {
@@ -9,17 +9,15 @@ case class Recorder(filename: String) {
   if (!Files.exists(Paths.get(filename)))
     Files.createFile(Paths.get(filename))
 
-  def dump(xs: Set[String]): Unit = {
-    Files.write(Paths.get(filename), xs.pickle.value)
+  def load: Set[String] = {
+    val jsonString = new String(Files.readAllBytes(Paths.get(filename)))
+    decode[Set[String]](jsonString) match {
+      case Right(set) => set
+      case Left(_) => Set.empty[String]
+    }
   }
 
-  def load: Set[String] = {
-    val ab: Array[Byte] = Files.readAllBytes(Paths.get(filename))
-    if (ab.length == 0)
-      Set.empty[String]
-    else
-      BinaryPickle(ab).unpickle[Set[String]]
-  }
+  def markUsed(s: String): Unit = dump(use(s, used))
 
   def use(s: String, used: Set[String]): Set[String] =
     used + s.trim
@@ -35,8 +33,11 @@ case class Recorder(filename: String) {
       unused(quotes, used).get
     }
 
-  def markUsed(s: String) = dump(use(s, used))
+  def reset(): Unit = dump(Set.empty[String])
 
-  def reset() = dump(Set.empty[String])
+  def dump(xs: Set[String]): Unit = {
+    val jsonString = xs.asJson.noSpaces
+    Files.write(Paths.get(filename), jsonString.getBytes)
+  }
 
 }
